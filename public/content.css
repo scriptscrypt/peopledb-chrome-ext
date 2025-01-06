@@ -1,0 +1,9 @@
+/* content.css */
+#contact-saver-cta {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+#contact-saver-cta * {
+  box-sizing: border-box;
+}

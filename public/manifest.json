@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "People DB",
+  "version": "1.0",
+  "description": "Enhance, enrich contacts from All Data Sources",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.linkedin.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.linkedin.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "index.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["cta.js"],
+      "matches": ["https://*.linkedin.com/*"]
+    }
+  ]
+}
