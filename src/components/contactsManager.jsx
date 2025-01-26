@@ -39,7 +39,7 @@ const ContactsManager = () => {
   };
 
   return (
-    <div className="h-[600px] w-96 flex flex-col bg-white">
+    <div className="h-[100vh] w-96 flex flex-col bg-white">
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b">
         <div className="flex items-center gap-2">

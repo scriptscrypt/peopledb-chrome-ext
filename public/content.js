@@ -129,97 +129,59 @@ function injectDrawer() {
   
   // Create drawer content with app mount point
   drawer.innerHTML = `
-    <div class="peopledb-drawer-content">
-      <div class="peopledb-drawer-header">
-        <h2>PeopleDB</h2>
-        <button class="peopledb-close-btn">×</button>
-      </div>
-      <div class="peopledb-drawer-body">
-        <div id="peopledb-app-root"></div>
-      </div>
-    </div>
+    <iframe 
+      id="peopledb-iframe"
+      src="${chrome.runtime.getURL('index.html')}"
+      style="
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+        background: white !important;
+      "
+    ></iframe>
   `;
 
   // Add drawer to page
   document.body.appendChild(drawer);
 
-  // Add event listener for close button
-  const closeBtn = drawer.querySelector('.peopledb-close-btn');
-  closeBtn.addEventListener('click', () => {
-    drawer.classList.remove('open');
-  });
-
   // Inject styles
   const styles = document.createElement("style");
   styles.textContent = `
     .peopledb-drawer {
-      position: fixed;
-      top: 0;
-      right: -384px; /* Match the width */
-      width: 384px; /* Match extension width */
-      height: 100vh;
-      background: white;
-      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-      z-index: 9999;
-      transition: right 0.3s ease;
+      position: fixed !important;
+      top: 0 !important;
+      right: -384px !important;
+      width: 384px !important;
+      height: 100vh !important;
+      background: white !important;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15) !important;
+      z-index: 9999 !important;
+      transition: right 0.3s ease !important;
     }
 
     .peopledb-drawer.open {
-      right: 0;
+      right: 0 !important;
     }
-
-    .peopledb-drawer-content {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .peopledb-drawer-header {
-      padding: 16px;
-      border-bottom: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .peopledb-drawer-header h2 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .peopledb-close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 0 8px;
-      color: #666;
-    }
-
-    .peopledb-close-btn:hover {
-      color: #000;
-    }
-
-    .peopledb-drawer-body {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    #peopledb-app-root {
-      height: 100%;
-    }
-
-    /* Import your app's CSS */
-    ${getAppStyles()}
   `;
   document.head.appendChild(styles);
 
-  // Mount React app
-  mountReactApp();
-
   return drawer;
 }
+
+// Update manifest.json to include index.html
+const manifestUpdate = {
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "index.html",
+        "assets/*",
+        "*.js",
+        "*.css"
+      ],
+      "matches": ["https://*.linkedin.com/*"]
+    }
+  ]
+};
 
 function getAppStyles() {
   return `

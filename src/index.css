@@ -10,25 +10,28 @@
 
 /* Base styles */
 html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+#root {
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 /* Extension mode */
 .extension {
-  width: 384px;  /* w-96 */
-  height: 600px;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+  flex: 1 !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
 }
 
 /* Development mode */
 .development {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

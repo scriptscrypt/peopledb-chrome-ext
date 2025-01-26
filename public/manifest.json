@@ -22,14 +22,18 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "src/*.js",
-        "src/*.jsx",
-        "src/components/*.jsx",
-        "src/components/tabs/*.jsx",
+        "index.html",
         "assets/*",
-        "dist/assets/*"
+        "dist/*",
+        "*.js",
+        "*.css",
+        "vite.svg",
+        "src/*"
       ],
-      "matches": ["https://*.linkedin.com/*", "https://linkedin.com/*"]
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://linkedin.com/*"
+      ]
     }
   ]
 }
