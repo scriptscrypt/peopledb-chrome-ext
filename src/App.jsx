@@ -1,8 +1,16 @@
 // src/App.jsx
-import ContactManager from "./components/contactsManager";
+
+import ContactsManager from "./components/contactsManager";
 
 function App() {
-  return <ContactManager />;
+  // Check if we're running as an extension popup
+  const isExtension = chrome?.extension != null;
+
+  return (
+    <div className={`${isExtension ? 'extension' : 'development'}`}>
+      <ContactsManager />
+    </div>
+  );
 }
 
 export default App;
