@@ -291,32 +291,58 @@ function createFloatingButton() {
   
   const floatingBtn = document.createElement('button');
   floatingBtn.id = 'peopledb-floating-btn';
-  floatingBtn.innerHTML = 'PDB';
+  // Create inner content with icon and text
+  floatingBtn.innerHTML = `
+    <div style="
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 8px !important;
+    ">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z" fill="currentColor"/>
+      </svg>
+      <span style="writing-mode: vertical-lr !important; text-orientation: upright !important;">
+        PEOPLE
+      </span>
+      <span style="writing-mode: vertical-lr !important; text-orientation: upright !important;">
+        DB
+      </span>
+    </div>
+  `;
   
-  // Force visibility with !important
+  // Updated styles to match Lusha
   const buttonStyles = `
     position: fixed !important;
-    right: 20px !important;
+    right: 0 !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     z-index: 2147483647 !important;
-    background: #0073b1 !important;
+    background: #4040F2 !important;
     color: white !important;
     border: none !important;
-    border-radius: 8px !important;
-    padding: 12px 20px !important;
-    font-size: 14px !important;
-    font-weight: bold !important;
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 16px 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    box-shadow: -2px 0 4px rgba(0,0,0,0.1) !important;
     transition: all 0.2s ease !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    min-width: 60px !important;
-    min-height: 40px !important;
+    min-width: 40px !important;
+    min-height: 120px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 1px !important;
   `;
   
   floatingBtn.style.cssText = buttonStyles;
@@ -333,17 +359,15 @@ function ensureButtonExists() {
     floatingBtn = createFloatingButton();
     document.body.appendChild(floatingBtn);
     
-    // Add event listeners
+    // Updated hover effects to match Lusha
     floatingBtn.addEventListener('mouseenter', () => {
-      floatingBtn.style.background = '#005582 !important';
-      floatingBtn.style.transform = 'translateY(-50%) scale(1.05) !important';
-      floatingBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3) !important';
+      floatingBtn.style.background = '#3333D1 !important';
+      floatingBtn.style.transform = 'translateY(-50%) translateX(-2px) !important';
     });
 
     floatingBtn.addEventListener('mouseleave', () => {
-      floatingBtn.style.background = '#0073b1 !important';
-      floatingBtn.style.transform = 'translateY(-50%) scale(1) !important';
-      floatingBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2) !important';
+      floatingBtn.style.background = '#4040F2 !important';
+      floatingBtn.style.transform = 'translateY(-50%) translateX(0) !important';
     });
 
     floatingBtn.addEventListener('click', () => {
