@@ -1,27 +1,14 @@
-import React, { useState } from "react";
 import {
-  Button,
-  Avatar,
-  Input,
-  Select,
-  SelectItem,
-  Checkbox,
-  Switch,
-} from "@nextui-org/react";
-import {
-  Mail,
-  Users,
-  Building2,
-  Globe,
-  Search,
   Clock,
   MoreHorizontal,
-  User,
+  Search,
+  User
 } from "lucide-react";
-import ProspectTab from './tabs/ProspectTab';
-import SearchTab from './tabs/SearchTab';
+import React, { useState } from "react";
 import ActivityTab from './tabs/ActivityTab';
 import MoreTab from './tabs/MoreTab';
+import ProspectTab from './tabs/ProspectTab';
+import SearchTab from './tabs/SearchTab';
 
 // Simplified theme configuration - light theme only
 const theme = {
@@ -56,8 +43,8 @@ const ContactsManager = () => {
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Lusha" className="w-6 h-6" />
-          <span className="font-semibold">Lusha</span>
+          {/* <img src="/logo.png" alt="Lusha" className="w-6 h-6" /> */}
+          <span className="font-semibold text-gray-900">PeopleDB</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-blue-500">Free credits</span>

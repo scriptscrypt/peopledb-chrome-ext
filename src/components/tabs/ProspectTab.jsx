@@ -1,38 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox, Button } from "@nextui-org/react";
 import { Mail } from "lucide-react";
 
 const ProspectTab = () => {
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [bulkView, setBulkView] = useState(false);
-  
-  const prospects = [
-    {
-      id: 1,
-      name: "Kushal K V",
-      company: "Nitte Meenakshi Institute",
-      selected: false
-    },
-    {
-      id: 2,
-      name: "Kushal N H",
-      company: "Nitte Meenakshi Institute",
-      selected: false
-    },
-    {
-      id: 3,
-      name: "Kushal Vijay",
-      company: "Microsoft",
-      selected: false
-    },
-    {
-      id: 4,
-      name: "Kushal Poudel",
-      company: "K&A Engineering Consulting, P.C.",
-      selected: false,
-      changed: true
-    }
-  ];
+  const [prospects, setProspects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    console.log('[ProspectTab] Component mounted');
+    
+    const requestProspects = async () => {
+      try {
+        // Get the current active tab
+        const [tab] = await chrome.tabs.query({ 
+          active: true, 
+          currentWindow: true,
+          url: ["*://*.linkedin.com/*"]  // Only match LinkedIn URLs
+        });
+
+        console.log('[ProspectTab] Current tab:', tab);
+
+        if (!tab) {
+          throw new Error('Please navigate to LinkedIn to use this feature');
+        }
+
+        // Send message to content script
+        console.log('[ProspectTab] Sending message to content script');
+        chrome.tabs.sendMessage(
+          tab.id, 
+          { type: 'GET_PROSPECTS' }, 
+          (response) => {
+            console.log('[ProspectTab] Response received:', response);
+            
+            if (chrome.runtime.lastError) {
+              console.error('[ProspectTab] Runtime error:', chrome.runtime.lastError);
+              setError('Failed to connect to LinkedIn page. Please refresh the page.');
+              setLoading(false);
+              return;
+            }
+
+            if (response && response.success) {
+              setProspects(response.prospects || []);
+              setLoading(false);
+            } else {
+              setError('No data received from LinkedIn');
+              setLoading(false);
+            }
+          }
+        );
+
+      } catch (err) {
+        console.error('[ProspectTab] Error:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    requestProspects();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center p-4">
+        <p className="text-red-500 text-center">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p className="mt-2 text-gray-600">Loading prospects...</p>
+        <p className="text-sm text-gray-400 text-center mt-2">
+          Make sure you're on a LinkedIn search results page
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -77,7 +131,7 @@ const ProspectTab = () => {
         {prospects.map((prospect) => (
           <div
             key={prospect.id}
-            className="p-4 border-b border-gray-200 flex items-center gap-3 bg-white"
+            className="flex items-center gap-4 p-4 border-b border-gray-200 hover:bg-gray-50"
           >
             <Checkbox
               isSelected={selectedContacts.includes(prospect.id)}
@@ -89,9 +143,21 @@ const ProspectTab = () => {
                 }
               }}
             />
+            <img 
+              src={prospect.profileImg} 
+              alt={prospect.name}
+              className="w-12 h-12 rounded-full"
+            />
             <div className="flex-1">
               <h3 className="font-medium text-gray-900">{prospect.name}</h3>
-              <p className="text-sm text-gray-600">{prospect.company}</p>
+              <p className="text-sm text-gray-600">{prospect.title}</p>
+              {bulkView && (
+                <>
+                  <p className="text-sm text-gray-500">{prospect.location}</p>
+                  <p className="text-sm text-gray-500">{prospect.connectionDegree}</p>
+                  <p className="text-sm text-gray-500">{prospect.mutualConnections}</p>
+                </>
+              )}
               {prospect.changed && (
                 <div className="mt-1">
                   <span className="text-orange-500 text-xs">Changed jobs</span>
@@ -102,8 +168,9 @@ const ProspectTab = () => {
               size="sm"
               variant="bordered"
               className="text-gray-900 border-gray-200"
+              onClick={() => window.open(prospect.profileUrl, '_blank')}
             >
-              Edit and save
+              View Profile
             </Button>
           </div>
         ))}

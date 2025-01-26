@@ -3,19 +3,17 @@
   "name": "People DB",
   "version": "1.0",
   "description": "Enhance, enrich contacts from All Data Sources",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "scripting"
-  ],
-  "host_permissions": [
-    "https://*.linkedin.com/*"
-  ],
+  "permissions": ["activeTab", "storage", "scripting", "tabs"],
+  "host_permissions": ["https://*.linkedin.com/*"],
+
   "content_scripts": [
     {
-      "matches": ["https://*.linkedin.com/*"],
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://linkedin.com/*"
+      ],
       "js": ["content.js"],
-      "css": ["content.css"]
+      "run_at": "document_start"
     }
   ],
   "action": {
@@ -23,8 +21,15 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["cta.js"],
-      "matches": ["https://*.linkedin.com/*"]
+      "resources": [
+        "src/*.js",
+        "src/*.jsx",
+        "src/components/*.jsx",
+        "src/components/tabs/*.jsx",
+        "assets/*",
+        "dist/assets/*"
+      ],
+      "matches": ["https://*.linkedin.com/*", "https://linkedin.com/*"]
     }
   ]
 }
