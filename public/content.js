@@ -32,62 +32,78 @@ const waitForElement = (selector, timeout = 5000) => {
   });
 };
 
+// Wait for selector to be present in DOM
+const waitForSelector = async (selector, timeout = 5000) => {
+  return await waitForElement(selector, timeout);
+};
+
+// Find all elements matching a selector
+const findAll = (selector) => {
+  return Array.from(document.querySelectorAll(selector));
+};
+
+// Get text content of an element
+const getText = async (element, selector) => {
+  const el = element.querySelector(selector);
+  return el ? el.textContent.trim() : null;
+};
+
+// Get href attribute of an element
+const getHref = async (element, selector) => {
+  const el = element.querySelector(selector);
+  return el ? el.getAttribute('href') : null;
+};
+
+// Get image source attribute of an element
+const getImageSrc = async (element, selector) => {
+  const el = element.querySelector(selector);
+  return el ? el.getAttribute('src') : null;
+};
+
 // Parse LinkedIn search results with retry
-const parseLinkedInResults = async (retryCount = 3) => {
+const parseLinkedInResults = async () => {
   debug('Starting to parse results');
   
-  try {
-    // Wait for the search results container
-    await waitForElement('.search-results-container');
-    
-    // Additional wait for lazy-loaded content
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const results = document.querySelectorAll('.search-results-container .entity-result');
-    debug(`Found ${results.length} results`);
-    
-    if (results.length === 0 && retryCount > 0) {
-      debug(`No results found, retrying... (${retryCount} attempts left)`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return parseLinkedInResults(retryCount - 1);
-    }
-    
-    return Array.from(results).map(result => {
-      try {
-        const profileImg = result.querySelector('.presence-entity__image')?.src || '';
-        const name = result.querySelector('.entity-result__title-text a span[aria-hidden="true"]')?.textContent?.trim() || '';
-        const title = result.querySelector('.entity-result__primary-subtitle')?.textContent?.trim() || '';
-        const location = result.querySelector('.entity-result__secondary-subtitle')?.textContent?.trim() || '';
-        const profileUrl = result.querySelector('.entity-result__title-text a')?.href || '';
-        const connectionDegree = result.querySelector('.entity-result__badge-text')?.textContent?.trim() || '';
-        const mutualConnections = result.querySelector('.reusable-search-simple-insight__text-container')?.textContent?.trim() || '';
-        
-        return {
-          id: profileUrl,
-          name,
-          title,
-          location,
-          profileImg,
-          profileUrl,
-          connectionDegree,
-          mutualConnections,
-          selected: false,
-          changed: title.includes('Changed jobs')
-        };
-      } catch (error) {
-        debug('Error parsing result', error);
-        return null;
-      }
-    }).filter(Boolean);
-  } catch (error) {
-    debug('Error in parseLinkedInResults', error);
-    if (retryCount > 0) {
-      debug(`Retrying... (${retryCount} attempts left)`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return parseLinkedInResults(retryCount - 1);
-    }
-    throw error;
+  // Wait for results container
+  const resultsContainer = await waitForSelector('.search-results-container');
+  if (!resultsContainer) {
+    debug('No results container found');
+    return [];
   }
+
+  // Get all result items
+  const resultItems = await findAll('li.hkYmsCBdlIUBJvmkiIuHiOmAzHfKtrTUoHY');
+  debug(`Found ${resultItems.length} result items`);
+
+  const results = [];
+  
+  for (const item of resultItems) {
+    try {
+      // Extract profile data
+      const profileData = {
+        name: await getText(item, '.bpXujlNfczDLoHnFwfjduXIwWzGhBFE'),
+        title: await getText(item, '.JgpkMGcOsEakIKDlilOeCcBaNmKwBnuIxVhPU'),
+        location: await getText(item, '.SuDPleudyukVIEyJxCfjZUuXannDxGCrofcvfA'),
+        profileUrl: await getHref(item, '.bpXujlNfczDLoHnFwfjduXIwWzGhBFE a'),
+        imageUrl: await getImageSrc(item, '.presence-entity__image'),
+        connectionDegree: await getText(item, '.entity-result__badge-text'),
+        mutualConnections: await getText(item, '.reusable-search-simple-insight__text--small'),
+        timestamp: new Date().toISOString()
+      };
+
+      // Only add if we have valid data
+      if (profileData.name && profileData.profileUrl) {
+        results.push(profileData);
+      }
+
+    } catch (err) {
+      debug(`Error parsing result item: ${err.message}`);
+      continue;
+    }
+  }
+
+  debug(`Successfully parsed ${results.length} results`);
+  return results;
 };
 
 // Add message listener to handle requests from the extension
@@ -95,7 +111,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   debug('Received message from extension', request);
   
   if (request.type === 'GET_PROSPECTS') {
-    // Use async/await with Promise to handle the async parseLinkedInResults
     parseLinkedInResults()
       .then(prospects => {
         debug('Successfully parsed prospects', prospects);
