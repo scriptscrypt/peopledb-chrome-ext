@@ -24,11 +24,9 @@
       "resources": [
         "index.html",
         "assets/*",
-        "dist/*",
         "*.js",
         "*.css",
-        "vite.svg",
-        "src/*"
+        "vite.svg"
       ],
       "matches": [
         "https://*.linkedin.com/*",

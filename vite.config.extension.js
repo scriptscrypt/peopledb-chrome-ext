@@ -1,14 +1,25 @@
 // vite.config.extension.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
   build: {
+    watch: {
+      include: [
+        'src/**',
+        'public/**'
+      ],
+      exclude: [
+        'node_modules/**',
+        'dist/**'
+      ]
+    },
     rollupOptions: {
       input: {
-        content: 'public/content.js',
-        app: 'src/App.jsx',
+        popup: resolve(__dirname, 'index.html'),
+        content: resolve(__dirname, 'public/content.js')
       },
       output: {
         entryFileNames: '[name].js',
@@ -18,5 +29,8 @@ export default defineConfig({
       },
     },
     manifest: true,
+    minify: false, // Easier debugging during development
+    sourcemap: true,
+    outDir: 'dist'
   },
 });

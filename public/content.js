@@ -72,7 +72,7 @@ const parseLinkedInResults = async () => {
   }
 
   // Get all result items
-  const resultItems = await findAll('li.hkYmsCBdlIUBJvmkiIuHiOmAzHfKtrTUoHY');
+  const resultItems = await findAll('li.zohxiIWjFxOAJZgeyVXCwbZLkTFitQwlmErc');
   debug(`Found ${resultItems.length} result items`);
 
   const results = [];
@@ -81,10 +81,10 @@ const parseLinkedInResults = async () => {
     try {
       // Extract profile data
       const profileData = {
-        name: await getText(item, '.bpXujlNfczDLoHnFwfjduXIwWzGhBFE'),
-        title: await getText(item, '.JgpkMGcOsEakIKDlilOeCcBaNmKwBnuIxVhPU'),
-        location: await getText(item, '.SuDPleudyukVIEyJxCfjZUuXannDxGCrofcvfA'),
-        profileUrl: await getHref(item, '.bpXujlNfczDLoHnFwfjduXIwWzGhBFE a'),
+        name: await getText(item, '.YYDYAPmgJNiHoOtGRjnLDnVQkrxYpXVJuwxY'),
+        title: await getText(item, '.ZMkZYQlZeAuOhykAzSqyYnNJQcEFrPimDBIURWM'),
+        location: await getText(item, '.iIOsLBoiozRfIcUBATfsiYIkQbtxiIkuBVFPI'),
+        profileUrl: await getHref(item, '.PXSSFxjsKnzqamnTHCCRhjqzdnfLKUSEpmk a'),
         imageUrl: await getImageSrc(item, '.presence-entity__image'),
         connectionDegree: await getText(item, '.entity-result__badge-text'),
         mutualConnections: await getText(item, '.reusable-search-simple-insight__text--small'),

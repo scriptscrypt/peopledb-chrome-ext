@@ -1,13 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Checkbox, Button } from "@nextui-org/react";
 import { Mail } from "lucide-react";
+import { ListModal } from "../ListModal";
 
 const ProspectTab = () => {
   const [selectedContacts, setSelectedContacts] = useState([]);
-  const [bulkView, setBulkView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [prospects, setProspects] = useState([]);
+  const [filteredProspects, setFilteredProspects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showListModal, setShowListModal] = useState(false);
+
+  // Filter prospects when search query changes
+  useEffect(() => {
+    const filtered = prospects.filter(prospect => 
+      prospect.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      prospect.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      prospect.location.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredProspects(filtered);
+  }, [searchQuery, prospects]);
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      const newSelected = filteredProspects.map(p => p.id);
+      setSelectedContacts(newSelected);
+    } else {
+      setSelectedContacts([]);
+    }
+  };
+
+  const handleSelectContact = (id, checked) => {
+    if (checked) {
+      setSelectedContacts(prev => [...prev, id]);
+    } else {
+      setSelectedContacts(prev => prev.filter(contactId => contactId !== id));
+    }
+  };
 
   useEffect(() => {
     console.log('[ProspectTab] Component mounted');
@@ -90,93 +120,119 @@ const ProspectTab = () => {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Bulk View Header */}
-      {bulkView && (
-        <div className="p-4 flex justify-between items-center border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">Bulk view</h1>
-          <Button color="primary">Show details</Button>
-        </div>
-      )}
+      {/* Search Bar */}
+      <div className="p-4 border-b border-gray-200">
+        <input
+          type="text"
+          placeholder="Search prospects..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {/* Selection Header */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <div className="flex items-center gap-2 text-gray-900">
           <Checkbox 
-            isSelected={selectedContacts.length === prospects.length}
-            onValueChange={(checked) => {
-              if (checked) {
-                setSelectedContacts(prospects.map(p => p.id));
-              } else {
-                setSelectedContacts([]);
-              }
-            }}
+            isSelected={
+              filteredProspects.length > 0 && 
+              selectedContacts.length === filteredProspects.length
+            }
+            onValueChange={handleSelectAll}
           />
           <span>{selectedContacts.length} selected</span>
         </div>
-        <div className="flex gap-2">
+        {selectedContacts.length > 0 && (
           <Button 
-            size="sm" 
-            variant="bordered"
-            className="text-gray-900 border-gray-200"
-            startContent={<Mail className="w-4 h-4" />}
-            onClick={() => setBulkView(!bulkView)}
+            size="sm"
+            color="primary"
+            onClick={() => setShowListModal(true)}
           >
-            {bulkView ? "Hide details" : "Show details"}
+            Add to List
           </Button>
-        </div>
+        )}
       </div>
 
       {/* Prospects List */}
       <div className="flex-1 overflow-auto">
-        {prospects.map((prospect) => (
+        {filteredProspects.map((prospect) => (
           <div
             key={prospect.id}
             className="flex items-center gap-4 p-4 border-b border-gray-200 hover:bg-gray-50"
           >
             <Checkbox
               isSelected={selectedContacts.includes(prospect.id)}
-              onValueChange={(checked) => {
-                if (checked) {
-                  setSelectedContacts([...selectedContacts, prospect.id]);
-                } else {
-                  setSelectedContacts(selectedContacts.filter(id => id !== prospect.id));
-                }
-              }}
+              onValueChange={(checked) => handleSelectContact(prospect.id, checked)}
             />
-            <img 
-              src={prospect.profileImg} 
-              alt={prospect.name}
-              className="w-12 h-12 rounded-full"
-            />
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900">{prospect.name}</h3>
-              <p className="text-sm text-gray-600">{prospect.title}</p>
-              {bulkView && (
-                <>
-                  <p className="text-sm text-gray-500">{prospect.location}</p>
-                  <p className="text-sm text-gray-500">{prospect.connectionDegree}</p>
-                  <p className="text-sm text-gray-500">{prospect.mutualConnections}</p>
-                </>
-              )}
-              {prospect.changed && (
-                <div className="mt-1">
-                  <span className="text-orange-500 text-xs">Changed jobs</span>
-                </div>
-              )}
+            <div className="flex items-center gap-3">
+              <img 
+                src={prospect.profileImg} 
+                alt={prospect.name}
+                className="w-10 h-10 rounded-full"
+              />
+              <div>
+                <a 
+                  href={prospect.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="text-sm font-medium text-gray-900"
+                >
+                  {prospect.name}
+                </a>
+                <p className="text-sm text-gray-500">{prospect.title}</p>
+                <p className="text-sm text-gray-500">{prospect.location}</p>
+                <p className="text-xs text-gray-400">{prospect.connectionDegree}</p>
+              </div>
             </div>
-            <Button
-              size="sm"
-              variant="bordered"
-              className="text-gray-900 border-gray-200"
-              onClick={() => window.open(prospect.profileUrl, '_blank')}
-            >
-              View Profile
-            </Button>
           </div>
         ))}
       </div>
+
+      {/* List Modal */}
+      <ListModal 
+        isOpen={showListModal}
+        onClose={() => setShowListModal(false)}
+        selectedContacts={selectedContacts}
+        onAddToList={(lists) => {
+          console.log('Adding contacts to lists:', {
+            contacts: selectedContacts,
+            lists: lists
+          });
+          setShowListModal(false);
+        }}
+      />
     </div>
   );
 };
 
+const ProspectItem = ({ prospect, isSelected, onSelect }) => {
+  return (
+    <div className="flex items-center gap-4 p-4 border-b border-gray-200 hover:bg-gray-50">
+      <Checkbox
+        isSelected={isSelected}
+        onValueChange={(checked) => onSelect(prospect.id, checked)}
+      />
+      <div className="flex items-center gap-3">
+        <img 
+          src={prospect.imageUrl} 
+          alt={prospect.name}
+          className="w-10 h-10 rounded-full"
+        />
+        <div>
+          <a 
+            href={prospect.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer" 
+            className="text-sm font-medium text-gray-900"
+          >
+            {prospect.name}
+          </a>
+          <p className="text-sm text-gray-500">{prospect.title}</p>
+          <p className="text-sm text-gray-500">{prospect.location}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 export default ProspectTab; 
